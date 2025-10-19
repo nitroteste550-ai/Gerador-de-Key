@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Gerador — SOUZA</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg1: #0f1724;
+    --bg2: #071029;
+    --accent: #6ee7b7;
+    --accent2: #7c5cff;
+    --glass: rgba(255,255,255,0.06);
+    --glass-2: rgba(255,255,255,0.03);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    min-height:100vh;
+    font-family:Inter,system-ui,Arial;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:
+      radial-gradient(600px 400px at 10% 20%, rgba(124,92,255,0.12), transparent 10%),
+      radial-gradient(500px 350px at 90% 80%, rgba(110,231,183,0.06), transparent 12%),
+      linear-gradient(180deg,var(--bg1),var(--bg2));
+    color:#e6eef8;
+    padding:24px;
+  }
+
+  .card{
+    width:100%;
+    max-width:420px;
+    border-radius:16px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    padding:20px;
+    box-shadow: 0 10px 30px rgba(2,6,23,0.6);
+    border:1px solid rgba(255,255,255,0.04);
+    transform: translateZ(0);
+    backdrop-filter: blur(8px) saturate(120%);
+  }
+
+  .head{
+    display:flex;
+    gap:12px;
+    align-items:center;
+  }
+  .logo{
+    width:56px;height:56px;border-radius:12px;
+    background: linear-gradient(135deg,var(--accent2),var(--accent));
+    display:flex;align-items:center;justify-content:center;font-weight:700;
+    color:#021022;font-size:18px;box-shadow:0 6px 18px rgba(124,92,255,0.12);
+  }
+  h1{font-size:18px;margin:0}
+  p.subtitle{margin:4px 0 12px 0;color:rgba(230,238,248,0.75);font-size:13px}
+
+  .display{
+    margin-top:10px;
+    background:linear-gradient(180deg,var(--glass),var(--glass-2));
+    padding:18px;border-radius:12px;border:1px solid rgba(255,255,255,0.03);
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    box-shadow: inset 0 -6px 18px rgba(0,0,0,0.25);
+  }
+
+  .key{
+    font-family: "Courier New", monospace;
+    font-size:18px;
+    letter-spacing:1px;
+    color:#f8fafc;
+    word-break:break-word;
+  }
+  .meta{
+    font-size:12px;color:rgba(230,238,248,0.65);
+    margin-top:8px;
+  }
+
+  .controls{
+    display:flex;gap:10px;margin-top:14px;
+  }
+  button{
+    flex:1;
+    padding:12px 14px;border-radius:12px;border:0;
+    font-weight:600;font-size:15px;cursor:pointer;
+    transition: transform .12s ease, box-shadow .12s ease, opacity .12s;
+    color:#061223;
+  }
+  button:active{transform:translateY(2px)}
+  .btn-generate{
+    background: linear-gradient(90deg,var(--accent),var(--accent2));
+    box-shadow: 0 8px 20px rgba(124,92,255,0.12);
+  }
+  .btn-copy{
+    background: rgba(255,255,255,0.06);
+    color: #e6eef8;
+    border: 1px solid rgba(255,255,255,0.03);
+  }
+  .btn-disabled{
+    opacity:0.5;cursor:default;transform:none;box-shadow:none;
+  }
+
+  .note{
+    margin-top:12px;font-size:13px;color:rgba(230,238,248,0.6);
+  }
+
+  .expires{
+    margin-top:10px;font-size:13px;color:rgba(230,238,248,0.75);
+    display:flex;align-items:center;gap:8px;
+  }
+
+  .countdown{
+    font-weight:700;color:var(--accent);background:rgba(110,231,183,0.06);padding:6px 10px;border-radius:8px;
+  }
+
+  @media (max-width:420px){
+    .card{padding:16px}
+    .logo{width:48px;height:48px;font-size:16px}
+  }
+</style>
+</head>
+<body>
+  <div class="card" role="main" aria-labelledby="title">
+    <div class="head">
+      <div class="logo">SOZ</div>
+      <div>
+        <h1 id="title">Gerador de Key — SOUZA</h1>
+        <p class="subtitle">Gere sua key única. Expira em 40 dias. (1 por aparelho)</p>
+      </div>
+    </div>
+
+    <div class="display" aria-live="polite">
+      <div>
+        <div class="key" id="keyBox">SOUZA-XXXX</div>
+        <div class="meta" id="meta"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;min-width:110px;align-items:flex-end">
+        <div style="font-size:11px;color:rgba(230,238,248,0.6)">Status</div>
+        <div id="statusBadge" style="background:rgba(110,231,183,0.12);padding:6px 10px;border-radius:8px;color:var(--accent);font-weight:700">Disponível</div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button id="btnGen" class="btn-generate">Gerar Key</button>
+      <button id="btnCopy" class="btn-copy">Copiar</button>
+    </div>
+
+    <div class="expires" id="expiresRow" style="display:none">
+      <div>Expira em:</div>
+      <div class="countdown" id="countdown">-- dias</div>
+    </div>
+
+    <div class="note" id="note">A key é gerada localmente. Para garantir 1 key por pessoa em todos os dispositivos, use o backend (opcional).</div>
+  </div>
+
+<script>
+/*
+ Frontend-only implementation:
+ - Armazena em localStorage a key e expires_at
+ - Só permite gerar 1 vez por aparelho até a expiração de 40 dias
+ - Se quiser usar backend, o botão pode chamar uma API (veja instruções no servidor)
+*/
+
+const STORAGE_KEY = 'souza_key_v1';
+const DAYS = 40;
+
+const keyBox = document.getElementById('keyBox');
+const meta = document.getElementById('meta');
+const btnGen = document.getElementById('btnGen');
+const btnCopy = document.getElementById('btnCopy');
+const statusBadge = document.getElementById('statusBadge');
+const expiresRow = document.getElementById('expiresRow');
+const countdown = document.getElementById('countdown');
+const note = document.getElementById('note');
+
+// helper: generate 4 alnum uppercase
+function gen4(){
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let out = '';
+  for(let i=0;i<4;i++) out += chars.charAt(Math.floor(cryptoRandom()*chars.length));
+  return out;
+}
+// secure-ish random using crypto if available
+function cryptoRandom(){
+  if(window.crypto && crypto.getRandomValues){
+    const arr = new Uint32Array(1);
+    crypto.getRandomValues(arr);
+    return (arr[0] / 0xFFFFFFFF);
+  } else return Math.random();
+}
+function makeKey(){ return `SOUZA-${gen4()}`; }
+
+function saveLocal(key, createdAt, expiresAt){
+  const obj = { key, createdAt, expiresAt };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(obj));
+}
+
+function loadLocal(){
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if(!raw) return null;
+  try{ return JSON.parse(raw); }catch(e){ return null; }
+}
+
+function formatDateISO(d){
+  return new Date(d).toLocaleString();
+}
+
+function daysLeft(expiresAt){
+  const diff = new Date(expiresAt) - Date.now();
+  return Math.ceil(diff / (1000*60*60*24));
+}
+
+function setUIForKey(obj){
+  if(!obj){
+    keyBox.innerText = 'SOUZA-XXXX';
+    meta.innerText = '';
+    statusBadge.innerText = 'Disponível';
+    statusBadge.style.background = 'rgba(110,231,183,0.12)';
+    statusBadge.style.color = 'var(--accent)';
+    btnGen.classList.remove('btn-disabled');
+    btnGen.disabled = false;
+    btnCopy.classList.add('btn-disabled'); btnCopy.disabled = true;
+    expiresRow.style.display = 'none';
+    note.innerText = 'A key é gerada localmente. Para garantir 1 key por pessoa em todos os dispositivos, use o backend (opcional).';
+    return;
+  }
+  keyBox.innerText = obj.key;
+  meta.innerText = 'Gerada: ' + formatDateISO(obj.createdAt);
+  const left = daysLeft(obj.expiresAt);
+  if(left <= 0){
+    // expired: remove
+    localStorage.removeItem(STORAGE_KEY);
+    setUIForKey(null);
+    return;
+  }
+  expiresRow.style.display = 'flex';
+  countdown.innerText = left + (left === 1 ? ' dia' : ' dias');
+  statusBadge.innerText = 'Ativa';
+  statusBadge.style.background = 'rgba(124,92,255,0.12)';
+  statusBadge.style.color = 'var(--accent2)';
+  btnGen.classList.add('btn-disabled');
+  btnGen.disabled = true;
+  btnCopy.classList.remove('btn-disabled'); btnCopy.disabled = false;
+  note.innerText = 'Você já recebeu uma key nesse aparelho. Ela expira em ' + formatDateISO(obj.expiresAt) + '.';
+}
+
+// init
+(function(){
+  const obj = loadLocal();
+  setUIForKey(obj);
+  // live countdown update every 15s
+  setInterval(()=> {
+    const current = loadLocal();
+    if(current) setUIForKey(current);
+  },15000);
+})();
+
+// generate click: local-only mode
+btnGen.addEventListener('click', async () => {
+  // optional: call backend instead by uncommenting fetch below and comment local generation
+  // ----- Example backend request (if you deploy server) -----
+  // try {
+  //   const res = await fetch('https://seu-backend.com/request-key', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ user_id: 'USER123' }) });
+  //   const j = await res.json();
+  //   if(j.ok){ handleNewKey(j.key, j.created_at, j.expires_at); return; }
+  // } catch(e){ console.warn('backend failed', e); }
+  // ---------------------------------------------------------
+
+  // local generation fallback
+  const existing = loadLocal();
+  if(existing){
+    alert('Você já gerou uma key neste aparelho. Aguarde a expiração.');
+    setUIForKey(existing);
+    return;
+  }
+  const key = makeKey();
+  const createdAt = new Date().toISOString();
+  const expiresAt = new Date(Date.now() + DAYS*24*60*60*1000).toISOString();
+  saveLocal(key, createdAt, expiresAt);
+  handleNewKey(key, createdAt, expiresAt);
+});
+
+function handleNewKey(key, createdAt, expiresAt){
+  const obj = { key, createdAt, expiresAt };
+  setUIForKey(obj);
+  // small animation & auto-copy
+  navigator.clipboard?.writeText(key).then(()=> {
+    // optional: show toast
+  }).catch(()=>{/* ignore */});
+}
+
+// copy click
+btnCopy.addEventListener('click', async () => {
+  const obj = loadLocal();
+  if(!obj) return;
+  try{
+    await navigator.clipboard.writeText(obj.key);
+    alert('Key copiada!');
+  }catch(e){
+    alert('Falha ao copiar. Segure o texto para selecionar manualmente.');
+  }
+});
+</script>
+</body>
+</html>
